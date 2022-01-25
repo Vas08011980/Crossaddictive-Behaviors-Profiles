@@ -1,0 +1,58 @@
+# Crossaddictive-Behaviors-Profiles
+Crossaddictive Behaviors Profiles
+library(tidyLPA)
+library(tidygraph)
+library(tidyr)
+library(tidyselect)
+library(git2r)
+library(githubinstall)
+library(devtools)
+library(dplyr)
+library(data.table)
+library(knitr)
+library(naniar)
+
+dim(CRB)
+
+CRB%>%
+  select("GamingTotal", "AlcoholTotal", "SmokingTotal", "DrugsTotal", "SexTotal", "SocialMediaTotal", "ShoppingTotal", "ExerciseTotal", "GamblingTotal", "InternetTotal")%>%
+  single_imputation()%>%
+  estimate_profiles(1:5, variances = c("equal", "varying", "equal", "varying"),
+                    covariances = c("zero", "zero", "equal", "varying"))%>%
+  compare_solutions(statistics = c("AIC", "AWE", "BIC", "CLC", "KIC"))
+
+CRB62<-CRB%>%
+  select("GamingTotal", "AlcoholTotal", "SmokingTotal", "DrugsTotal", "SexTotal", "SocialMediaTotal", "ShoppingTotal", "ExerciseTotal", "GamblingTotal", "InternetTotal")%>%
+  single_imputation()%>%
+  estimate_profiles(1:5, variances = "varying", covariances = "varying")
+get_fit(CRB62)
+
+any_na(CRB62F)
+miss_var_summary(CRB62F)
+vis_miss(CRB62F)
+gg_miss_case(CRB)
+
+mcar_test (CRB)
+mnar_test (CRB)
+rlang::last_error()
+rlang::last_trace()
+
+traceback()
+options(error = dump.frames)
+
+
+CRB62F<-CRB%>%
+  select("GamingTotal", "AlcoholTotal", "SmokingTotal", "DrugsTotal", "SexTotal", "SocialMediaTotal", "ShoppingTotal", "ExerciseTotal", "GamblingTotal", "InternetTotal")%>%
+  single_imputation()%>%
+  estimate_profiles(2, variances = "varying", covariances = "varying")
+get_estimates(CRB62F)%>%
+  print(n=2000)
+get_data(CRB62F)%>%
+  print(n=2000)
+plot_profiles(CRB62F)
+
+CRBPROFILESPAPER<-get_data(CRB62F)%>%
+  print(n=2000)
+
+library(haven)
+write_sav(CRBPROFILESPAPER, "CRBPROFILESPAPER.sav")
